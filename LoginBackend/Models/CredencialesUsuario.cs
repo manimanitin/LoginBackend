@@ -6,5 +6,6 @@ public class CredencialesUsuario
 {
     [EmailAddress]
     public required string email { get; set; }
-    public required string password { get; set; }
+    [Required]
+    public string password { get; set; }
 }

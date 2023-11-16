@@ -1,10 +1,11 @@
 ﻿using LoginBackend.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace LoginBackend.Controllers;
@@ -67,5 +68,35 @@ public class CuentasController : Controller
             token = new JwtSecurityTokenHandler().WriteToken(securityToken),
             expiracion = expiracion,
         };
+    }
+
+
+    [HttpGet("RenovarToken")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
+    public async Task<ActionResult<RespuestaAutenticacion>> Renovar()
+    {
+        var emailClaims = HttpContext.User.Claims.Where(x => x.Type == "email").FirstOrDefault();
+        var credencialesUsuario = new CredencialesUsuario() { email = emailClaims.Value };
+
+        return await ConstruirToken(credencialesUsuario);
+    }
+
+    [HttpPost("Login")]
+    public async Task<ActionResult<RespuestaAutenticacion>> Login(CredencialesUsuario credencialesUsuario)
+    {
+        var resultado = await _signInManager.PasswordSignInAsync(
+            credencialesUsuario.email,
+            credencialesUsuario.password,
+            isPersistent: false,
+            lockoutOnFailure: false);
+        if (resultado.Succeeded)
+        {
+            return await ConstruirToken(credencialesUsuario);
+        }
+        else
+        {
+            return BadRequest("Login Incorrecto");
+        }
     }
 }
