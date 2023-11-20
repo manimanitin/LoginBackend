@@ -76,8 +76,9 @@ public class CuentasController : Controller
 
     public async Task<ActionResult<RespuestaAutenticacion>> Renovar()
     {
-        var emailClaims = HttpContext.User.Claims.Where(x => x.Type == "email").FirstOrDefault();
-        var credencialesUsuario = new CredencialesUsuario() { email = emailClaims.Value };
+       
+        var emailClaims = HttpContext.User.Claims.Where(x => x.Type == ClaimTypes.Email).Select(x=>x.Value).FirstOrDefault();
+        var credencialesUsuario = new CredencialesUsuario() { email = emailClaims };
 
         return await ConstruirToken(credencialesUsuario);
     }
