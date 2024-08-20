@@ -37,7 +37,7 @@ public class WeatherForecastController : Controller
         .ToArray();
     }
 
-    [HttpGet("Ejemplo")]
+    [HttpGet("")]
     public IActionResult Index()
     {
         return Content("Hello, World!");
